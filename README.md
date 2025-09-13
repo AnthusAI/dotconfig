@@ -90,17 +90,54 @@ database_config = {
 }
 ```
 
-## Why dotconfig?
-
-- **Development**: Use readable YAML files for complex configuration
-- **Production**: Use environment variables for deployment flexibility
-- **Serverless**: Perfect for AWS Lambda, Docker, and other containerized environments
-- **12-Factor**: Follows the 12-factor app methodology for configuration
-- **Simple**: Drop-in replacement approach - your app code stays clean
-
 ## Advanced Usage
 
-For more complex scenarios, you can define custom schemas and transformation rules. See the [Advanced Configuration Guide](docs/advanced.md) for details.
+### Environment Variable Precedence
+
+Environment variables always take precedence over YAML values:
+
+```python
+# YAML file has database.host: localhost
+# But environment variable is set:
+os.environ['APP_DATABASE_HOST'] = 'prod-db.example.com'
+
+load_config('config.yaml', prefix='APP')
+# Result: APP_DATABASE_HOST=prod-db.example.com (env var wins)
+```
+
+### Force Override
+
+Override existing environment variables with YAML values:
+
+```python
+load_config('config.yaml', prefix='APP', override=True)
+```
+
+### ConfigLoader for Advanced Use Cases
+
+```python
+from dotconfig import ConfigLoader
+
+# Load configuration without setting environment variables
+loader = ConfigLoader(prefix='APP')
+config = loader.load_from_yaml('config.yaml')  # Returns dict
+
+# Load configuration from environment variables only
+env_config = loader.load_from_env()
+
+# Set environment variables from configuration dict
+loader.set_env_vars(config)
+```
+
+### Data Type Handling
+
+dotconfig automatically handles various YAML data types:
+
+- **Strings**: Passed through as-is
+- **Numbers**: Converted to string representations
+- **Booleans**: Converted to `"true"`/`"false"`
+- **Lists**: Converted to comma-separated strings
+- **Null values**: Converted to empty strings
 
 ## License
 
