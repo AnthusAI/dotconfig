@@ -3,8 +3,11 @@ Core loading functionality for yamlenv
 """
 
 import os
+import yaml
 from pathlib import Path
 from typing import Optional, Dict, Any, Union
+
+from .transformer import flatten_dict, unflatten_env_vars
 
 
 def load_config(
@@ -23,14 +26,27 @@ def load_config(
     Returns:
         Dictionary of all configuration values that were set
     """
-    # Placeholder implementation - will be implemented later
     config = {}
 
     if yaml_path and Path(yaml_path).exists():
-        # TODO: Load and parse YAML file
-        # TODO: Transform nested structure to flat env var names
-        # TODO: Set environment variables
-        pass
+        # Load and parse YAML file
+        with open(yaml_path, 'r', encoding='utf-8') as file:
+            yaml_data = yaml.safe_load(file)
+
+        if yaml_data:
+            # Transform nested structure to flat env var names
+            flat_config = flatten_dict(yaml_data, prefix)
+
+            # Set environment variables with precedence handling
+            for key, value in flat_config.items():
+                # Check if env var already exists and override is False
+                if not override and key in os.environ:
+                    # Keep existing env var, but track it in config
+                    config[key] = os.environ[key]
+                else:
+                    # Set new env var
+                    os.environ[key] = value
+                    config[key] = value
 
     return config
 
@@ -46,15 +62,28 @@ class ConfigLoader:
 
     def load_from_yaml(self, yaml_path: Union[str, Path]) -> Dict[str, Any]:
         """Load configuration from YAML file"""
-        # TODO: Implement YAML loading with schema validation
-        return {}
+        if not Path(yaml_path).exists():
+            return {}
+
+        with open(yaml_path, 'r', encoding='utf-8') as file:
+            yaml_data = yaml.safe_load(file)
+
+        return yaml_data or {}
 
     def load_from_env(self) -> Dict[str, Any]:
         """Load configuration from environment variables"""
-        # TODO: Implement env var to structured config transformation
-        return {}
+        # Get all environment variables
+        env_vars = dict(os.environ)
+
+        # Convert back to nested structure
+        return unflatten_env_vars(env_vars, self.prefix)
 
     def set_env_vars(self, config: Dict[str, Any], override: bool = False) -> None:
         """Set environment variables from configuration dictionary"""
-        # TODO: Implement config to env var transformation
-        pass
+        # Flatten the configuration
+        flat_config = flatten_dict(config, self.prefix)
+
+        # Set environment variables
+        for key, value in flat_config.items():
+            if override or key not in os.environ:
+                os.environ[key] = value

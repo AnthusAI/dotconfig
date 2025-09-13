@@ -46,11 +46,11 @@ def environment_is_clean():
     pass
 
 
-@given(parsers.parse('a YAML file "{filename}" with content:\n{content}'))
-def yaml_file_with_content(temp_dir, filename, content):
+@given(parsers.parse('a YAML file "{filename}" with content:'), target_fixture='yaml_file')
+def yaml_file_with_content(temp_dir, filename, docstring):
     """Create a YAML file with specified content"""
     yaml_path = temp_dir / filename
-    yaml_path.write_text(content.strip())
+    yaml_path.write_text(docstring.strip())
     return yaml_path
 
 
@@ -68,6 +68,13 @@ def check_environment_variable(var_name, expected_value):
     """Check that environment variable has expected value"""
     actual_value = os.getenv(var_name)
     assert actual_value == expected_value, f"Expected {var_name}={expected_value}, got {actual_value}"
+
+
+@then(parsers.parse('the environment variable "{var_name}" should be ""'))
+def check_environment_variable_empty(var_name):
+    """Check that environment variable is empty"""
+    actual_value = os.getenv(var_name)
+    assert actual_value == "", f"Expected {var_name} to be empty, got {actual_value}"
 
 
 @then(parsers.parse('the environment variable "{var_name}" should contain database replica information'))
