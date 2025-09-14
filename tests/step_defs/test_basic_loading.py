@@ -50,6 +50,7 @@ def environment_is_clean():
 
 # Specific step definitions for each scenario's YAML content
 
+
 @given('a YAML file "config.yaml" with content:')
 def create_yaml_file_basic(temp_dir, docstring):
     """Create a YAML file with content from the step's docstring"""
