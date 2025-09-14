@@ -8,6 +8,12 @@ A Python library that bridges YAML configuration files and environment variables
 pip install dotconfig
 ```
 
+For `.env` file support, also install python-dotenv:
+
+```bash
+pip install dotconfig python-dotenv
+```
+
 ## Quick Start
 
 Just like python-dotenv, dotconfig is designed to be simple to use:
@@ -128,6 +134,31 @@ env_config = loader.load_from_env()
 # Set environment variables from configuration dict
 loader.set_env_vars(config)
 ```
+
+### Integration with python-dotenv
+
+dotconfig works perfectly with python-dotenv for `.env` file support. Since dotconfig respects existing environment variables, you can use both together:
+
+```python
+from dotenv import load_dotenv
+from dotconfig import load_config
+
+# Load .env file first (if it exists)
+load_dotenv()
+
+# Then load YAML config - respects .env values
+load_config('config.yaml', prefix='APP')
+```
+
+**Precedence order** (highest to lowest):
+1. Existing environment variables (including from `.env`)
+2. YAML configuration file values
+3. Default values (if using schemas)
+
+This pattern gives you maximum flexibility:
+- **Development**: Use `.env` for secrets and local overrides
+- **Staging**: Mix `.env` and YAML as needed
+- **Production**: Use environment variables only
 
 ### Data Type Handling
 
