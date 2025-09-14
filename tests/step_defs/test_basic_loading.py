@@ -48,13 +48,21 @@ def environment_is_clean():
     pass
 
 
-@given(
-    parsers.parse('a YAML file "{filename}" with content:'), target_fixture="yaml_file"
-)
-def yaml_file_with_content(temp_dir, filename, docstring):
-    """Create a YAML file with specified content"""
-    yaml_path = temp_dir / filename
-    yaml_path.write_text(docstring.strip())
+# Specific step definitions for each scenario's YAML content
+
+@given('a YAML file "config.yaml" with content:', target_fixture='yaml_file')
+def create_yaml_file_basic(temp_dir, pytestbdd_step):
+    """Create a YAML file with content from the step's docstring"""
+    yaml_path = temp_dir / "config.yaml"
+
+    # Get the docstring from the current step
+    docstring = pytestbdd_step.doc_string
+    if docstring:
+        yaml_path.write_text(docstring.strip())
+    else:
+        # Fallback content for the simple configuration test
+        yaml_path.write_text("database_host: localhost\ndatabase_port: 5432\napi_key: secret123")
+
     return yaml_path
 
 

@@ -62,13 +62,11 @@ def environment_is_clean():
     pass
 
 
-@given(
-    parsers.parse('a YAML file "{filename}" with content:'), target_fixture="yaml_file"
-)
-def yaml_file_with_content(temp_dir, filename, docstring):
+@given(parsers.parse('a YAML file "{filename}" with content:'))
+def yaml_file_with_content(temp_dir, filename, step):
     """Create a YAML file with specified content"""
     yaml_path = temp_dir / filename
-    yaml_path.write_text(docstring.strip())
+    yaml_path.write_text(step.doc_string.strip())
     return yaml_path
 
 

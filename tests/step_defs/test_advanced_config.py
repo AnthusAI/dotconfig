@@ -63,24 +63,19 @@ def environment_is_clean():
     pass
 
 
-@given(
-    parsers.parse('a YAML file "{filename}" with content:'), target_fixture="yaml_file"
-)
-def yaml_file_with_content(temp_dir, filename, docstring):
+@given(parsers.parse('a YAML file "{filename}" with content:'))
+def yaml_file_with_content(temp_dir, filename, step):
     """Create a YAML file with specified content"""
     yaml_path = temp_dir / filename
-    yaml_path.write_text(docstring.strip())
+    yaml_path.write_text(step.doc_string.strip())
     return yaml_path
 
 
-@given(
-    parsers.parse('a YAML file "{filename}" with invalid content:'),
-    target_fixture="invalid_yaml_file",
-)
-def yaml_file_with_invalid_content(temp_dir, filename, docstring):
+@given(parsers.parse('a YAML file "{filename}" with invalid content:'))
+def yaml_file_with_invalid_content(temp_dir, filename, step):
     """Create a YAML file with invalid content"""
     yaml_path = temp_dir / filename
-    yaml_path.write_text(docstring.strip())
+    yaml_path.write_text(step.doc_string.strip())
     return yaml_path
 
 
