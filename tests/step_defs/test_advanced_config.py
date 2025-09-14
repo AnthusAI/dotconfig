@@ -64,44 +64,18 @@ def environment_is_clean():
 
 
 @given('a YAML file "config.yaml" with content:')
-def create_yaml_file_advanced(temp_dir, request):
-    """Create a YAML file with content based on test scenario"""
+def create_yaml_file_advanced(temp_dir, docstring):
+    """Create a YAML file with content from the step's docstring"""
     yaml_path = temp_dir / "config.yaml"
-
-    # Determine content based on the test name
-    test_name = request.node.name
-    if "custom_key_transformation" in test_name:
-        content = """database-host: localhost
-api_endpoint: https://api.example.com
-cache.redis.url: redis://localhost:6379"""
-    elif "without_setting_environment" in test_name:
-        content = """database:
-  host: localhost
-  port: 5432"""
-    elif "validation" in test_name:
-        content = """database:
-  host: localhost
-  port: not_a_number
-required_field: null"""
-    else:
-        content = """database:
-  host: localhost
-  port: 5432"""
-
-    yaml_path.write_text(content)
+    yaml_path.write_text(docstring.strip())
     return yaml_path
 
 
 @given('a YAML file "config.yaml" with invalid content:')
-def create_yaml_file_invalid(temp_dir, request):
-    """Create a YAML file with invalid content"""
+def create_yaml_file_invalid(temp_dir, docstring):
+    """Create a YAML file with invalid content from docstring"""
     yaml_path = temp_dir / "config.yaml"
-    # Invalid YAML content
-    content = """database:
-  host: localhost
-  port: 5432
-invalid_yaml: [unclosed list"""
-    yaml_path.write_text(content)
+    yaml_path.write_text(docstring.strip())
     return yaml_path
 
 

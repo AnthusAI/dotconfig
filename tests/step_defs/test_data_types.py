@@ -63,55 +63,10 @@ def environment_is_clean():
 
 
 @given('a YAML file "config.yaml" with content:')
-def create_yaml_file_data_types(temp_dir, request):
-    """Create a YAML file with content based on test scenario"""
+def create_yaml_file_data_types(temp_dir, docstring):
+    """Create a YAML file with content from the step's docstring"""
     yaml_path = temp_dir / "config.yaml"
-
-    # Determine content based on the test name
-    test_name = request.node.name
-    if "different_data_types" in test_name:
-        content = '''string_value: hello world
-integer_value: 42
-float_value: 3.14
-boolean_true: true
-boolean_false: false
-null_value: null
-empty_string: ""'''
-    elif "list_values" in test_name:
-        content = """simple_list:
-  - item1
-  - item2
-  - item3
-mixed_list:
-  - string
-  - 42
-  - true
-nested_config:
-  allowed_hosts:
-    - localhost
-    - 127.0.0.1
-    - example.com"""
-    elif "complex_nested" in test_name:
-        content = """app:
-  database:
-    primary:
-      host: db1.example.com
-      port: 5432
-      ssl: true
-    replicas:
-      - host: db2.example.com
-        port: 5432
-      - host: db3.example.com
-        port: 5432
-  cache:
-    redis:
-      urls:
-        - redis://cache1:6379
-        - redis://cache2:6379"""
-    else:
-        content = "default: value"
-
-    yaml_path.write_text(content)
+    yaml_path.write_text(docstring.strip())
     return yaml_path
 
 

@@ -51,39 +51,10 @@ def environment_is_clean():
 # Specific step definitions for each scenario's YAML content
 
 @given('a YAML file "config.yaml" with content:')
-def create_yaml_file_basic(temp_dir, request):
+def create_yaml_file_basic(temp_dir, docstring):
     """Create a YAML file with content from the step's docstring"""
     yaml_path = temp_dir / "config.yaml"
-
-    # Access the current step from the request object
-    step = request.node.funcargs.get('_pytest_bdd_step') or getattr(request.node, '_pytest_bdd_step', None)
-
-    if step and hasattr(step, 'doc_string'):
-        yaml_path.write_text(step.doc_string.strip())
-    else:
-        # Determine content based on the test name or provide a fallback
-        test_name = request.node.name
-        if "simple" in test_name:
-            content = "database_host: localhost\ndatabase_port: 5432\napi_key: secret123"
-        elif "nested" in test_name:
-            content = """database:
-  host: localhost
-  port: 5432
-  credentials:
-    username: admin
-    password: secret
-api:
-  timeout: 30
-  retries: 3"""
-        elif "prefix" in test_name:
-            content = """database:
-  host: localhost
-  port: 5432"""
-        else:
-            content = "database_host: localhost\ndatabase_port: 5432\napi_key: secret123"
-
-        yaml_path.write_text(content)
-
+    yaml_path.write_text(docstring.strip())
     return yaml_path
 
 

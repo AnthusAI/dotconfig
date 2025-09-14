@@ -55,33 +55,10 @@ def set_environment_variable(var_name, value):
 
 
 @given('a YAML file "config.yaml" with content:')
-def create_yaml_file_precedence(temp_dir, request):
-    """Create a YAML file with content based on test scenario"""
+def create_yaml_file_precedence(temp_dir, docstring):
+    """Create a YAML file with content from the step's docstring"""
     yaml_path = temp_dir / "config.yaml"
-
-    # Determine content based on the test name
-    test_name = request.node.name
-    if "override_yaml_values" in test_name and "prefix" not in test_name:
-        content = """database:
-  host: localhost
-  port: 5432
-api:
-  timeout: 30
-  retries: 3"""
-    elif "with_prefix" in test_name:
-        content = """database:
-  host: localhost
-  port: 5432"""
-    elif "force_override" in test_name:
-        content = """database:
-  host: new-db.example.com
-  port: 5432"""
-    else:
-        content = """database:
-  host: localhost
-  port: 5432"""
-
-    yaml_path.write_text(content)
+    yaml_path.write_text(docstring.strip())
     return yaml_path
 
 
