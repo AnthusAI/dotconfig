@@ -5,7 +5,7 @@ A simple library that allows applications to be configured via either YAML files
 or environment variables, providing maximum deployment flexibility.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 # Main API - keep it simple like python-dotenv
 from .loader import load_config, ConfigLoader
