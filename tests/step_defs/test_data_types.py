@@ -10,7 +10,7 @@ import pytest
 from dotconfig import load_config
 
 # Load all scenarios from the feature file
-scenarios('../features/data_types.feature')
+scenarios("../features/data_types.feature")
 
 
 @pytest.fixture
@@ -27,9 +27,25 @@ def clean_env():
     original_env = dict(os.environ)
 
     # Clear test-related env vars
-    test_vars = [key for key in os.environ.keys()
-                 if any(prefix in key.upper() for prefix in
-                       ['STRING', 'INTEGER', 'FLOAT', 'BOOLEAN', 'NULL', 'EMPTY', 'SIMPLE', 'MIXED', 'NESTED', 'APP'])]
+    test_vars = [
+        key
+        for key in os.environ.keys()
+        if any(
+            prefix in key.upper()
+            for prefix in [
+                "STRING",
+                "INTEGER",
+                "FLOAT",
+                "BOOLEAN",
+                "NULL",
+                "EMPTY",
+                "SIMPLE",
+                "MIXED",
+                "NESTED",
+                "APP",
+            ]
+        )
+    ]
     for var in test_vars:
         os.environ.pop(var, None)
 
@@ -46,7 +62,9 @@ def environment_is_clean():
     pass
 
 
-@given(parsers.parse('a YAML file "{filename}" with content:'), target_fixture='yaml_file')
+@given(
+    parsers.parse('a YAML file "{filename}" with content:'), target_fixture="yaml_file"
+)
 def yaml_file_with_content(temp_dir, filename, docstring):
     """Create a YAML file with specified content"""
     yaml_path = temp_dir / filename
@@ -63,11 +81,15 @@ def load_configuration(temp_dir):
     return {}
 
 
-@then(parsers.parse('the environment variable "{var_name}" should be "{expected_value}"'))
+@then(
+    parsers.parse('the environment variable "{var_name}" should be "{expected_value}"')
+)
 def check_environment_variable(var_name, expected_value):
     """Check that environment variable has expected value"""
     actual_value = os.getenv(var_name)
-    assert actual_value == expected_value, f"Expected {var_name}={expected_value}, got {actual_value}"
+    assert (
+        actual_value == expected_value
+    ), f"Expected {var_name}={expected_value}, got {actual_value}"
 
 
 @then(parsers.parse('the environment variable "{var_name}" should be ""'))
@@ -77,7 +99,11 @@ def check_environment_variable_empty(var_name):
     assert actual_value == "", f"Expected {var_name} to be empty, got {actual_value}"
 
 
-@then(parsers.parse('the environment variable "{var_name}" should contain database replica information'))
+@then(
+    parsers.parse(
+        'the environment variable "{var_name}" should contain database replica information'
+    )
+)
 def check_database_replica_info(var_name):
     """Check that environment variable contains database replica information"""
     actual_value = os.getenv(var_name)

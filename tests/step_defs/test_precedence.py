@@ -10,7 +10,7 @@ import pytest
 from dotconfig import load_config
 
 # Load all scenarios from the feature file
-scenarios('../features/precedence.feature')
+scenarios("../features/precedence.feature")
 
 
 @pytest.fixture
@@ -27,8 +27,11 @@ def clean_env():
     original_env = dict(os.environ)
 
     # Clear test-related env vars
-    test_vars = [key for key in os.environ.keys()
-                 if any(prefix in key.upper() for prefix in ['DATABASE', 'API', 'MYAPP'])]
+    test_vars = [
+        key
+        for key in os.environ.keys()
+        if any(prefix in key.upper() for prefix in ["DATABASE", "API", "MYAPP"])
+    ]
     for var in test_vars:
         os.environ.pop(var, None)
 
@@ -51,7 +54,9 @@ def set_environment_variable(var_name, value):
     os.environ[var_name] = value
 
 
-@given(parsers.parse('a YAML file "{filename}" with content:'), target_fixture='yaml_file')
+@given(
+    parsers.parse('a YAML file "{filename}" with content:'), target_fixture="yaml_file"
+)
 def yaml_file_with_content(temp_dir, filename, docstring):
     """Create a YAML file with specified content"""
     yaml_path = temp_dir / filename
@@ -99,8 +104,12 @@ def load_configuration_from_file(temp_dir, filename):
     return load_config(str(config_path))
 
 
-@then(parsers.parse('the environment variable "{var_name}" should be "{expected_value}"'))
+@then(
+    parsers.parse('the environment variable "{var_name}" should be "{expected_value}"')
+)
 def check_environment_variable(var_name, expected_value):
     """Check that environment variable has expected value"""
     actual_value = os.getenv(var_name)
-    assert actual_value == expected_value, f"Expected {var_name}={expected_value}, got {actual_value}"
+    assert (
+        actual_value == expected_value
+    ), f"Expected {var_name}={expected_value}, got {actual_value}"

@@ -6,7 +6,9 @@ import json
 from typing import Any, Dict, List, Union
 
 
-def flatten_dict(data: Dict[str, Any], prefix: str = "", separator: str = "_") -> Dict[str, str]:
+def flatten_dict(
+    data: Dict[str, Any], prefix: str = "", separator: str = "_"
+) -> Dict[str, str]:
     """
     Flatten a nested dictionary into dot-notation keys.
 
@@ -91,7 +93,7 @@ def unflatten_env_vars(env_vars: Dict[str, str], prefix: str = "") -> Dict[str, 
         # Remove prefix
         clean_key = key
         if prefix:
-            clean_key = key[len(prefix) + 1:]  # +1 for underscore
+            clean_key = key[len(prefix) + 1 :]  # +1 for underscore
 
         # Split key into parts
         parts = clean_key.lower().split("_")

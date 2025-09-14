@@ -10,7 +10,7 @@ import pytest
 from dotconfig import load_config, ConfigLoader
 
 # Load all scenarios from the feature file
-scenarios('../features/advanced_config.feature')
+scenarios("../features/advanced_config.feature")
 
 
 @pytest.fixture
@@ -27,9 +27,14 @@ def clean_env():
     original_env = dict(os.environ)
 
     # Clear test-related env vars
-    test_vars = [key for key in os.environ.keys()
-                 if any(prefix in key.upper() for prefix in
-                       ['DATABASE', 'API', 'CACHE', 'APP', 'OTHER'])]
+    test_vars = [
+        key
+        for key in os.environ.keys()
+        if any(
+            prefix in key.upper()
+            for prefix in ["DATABASE", "API", "CACHE", "APP", "OTHER"]
+        )
+    ]
     for var in test_vars:
         os.environ.pop(var, None)
 
@@ -43,13 +48,13 @@ def clean_env():
 @pytest.fixture
 def config_error():
     """Fixture to capture configuration errors"""
-    return {'error': None}
+    return {"error": None}
 
 
 @pytest.fixture
 def config_result():
     """Fixture to store configuration results"""
-    return {'config': None}
+    return {"config": None}
 
 
 @given("the environment is clean")
@@ -58,7 +63,9 @@ def environment_is_clean():
     pass
 
 
-@given(parsers.parse('a YAML file "{filename}" with content:'), target_fixture='yaml_file')
+@given(
+    parsers.parse('a YAML file "{filename}" with content:'), target_fixture="yaml_file"
+)
 def yaml_file_with_content(temp_dir, filename, docstring):
     """Create a YAML file with specified content"""
     yaml_path = temp_dir / filename
@@ -66,7 +73,10 @@ def yaml_file_with_content(temp_dir, filename, docstring):
     return yaml_path
 
 
-@given(parsers.parse('a YAML file "{filename}" with invalid content:'), target_fixture='invalid_yaml_file')
+@given(
+    parsers.parse('a YAML file "{filename}" with invalid content:'),
+    target_fixture="invalid_yaml_file",
+)
 def yaml_file_with_invalid_content(temp_dir, filename, docstring):
     """Create a YAML file with invalid content"""
     yaml_path = temp_dir / filename
@@ -96,10 +106,10 @@ def attempt_load_configuration(temp_dir, config_error):
     config_path = temp_dir / "config.yaml"
     try:
         result = load_config(str(config_path))
-        config_error['error'] = None
+        config_error["error"] = None
         return result
     except Exception as e:
-        config_error['error'] = e
+        config_error["error"] = e
         return None
 
 
@@ -111,17 +121,21 @@ def load_configuration_without_setting_env_vars(temp_dir, config_result):
         # This will use ConfigLoader to get config dict without setting env vars
         loader = ConfigLoader()
         config = loader.load_from_yaml(str(config_path))
-        config_result['config'] = config
+        config_result["config"] = config
         return config
     return {}
 
 
-@when(parsers.parse('I load configuration from environment variables with prefix "{prefix}"'))
+@when(
+    parsers.parse(
+        'I load configuration from environment variables with prefix "{prefix}"'
+    )
+)
 def load_configuration_from_env_with_prefix(prefix, config_result):
     """Load configuration from environment variables with prefix"""
     loader = ConfigLoader(prefix=prefix)
     config = loader.load_from_env()
-    config_result['config'] = config
+    config_result["config"] = config
     return config
 
 
@@ -134,51 +148,58 @@ def load_configuration_with_validation(temp_dir, config_error):
         # TODO: Implement actual validation logic
         result = load_config(str(config_path))
         # Simulate validation error for test purposes
-        config_error['error'] = ValueError("Validation not implemented yet")
+        config_error["error"] = ValueError("Validation not implemented yet")
         return result
     except Exception as e:
-        config_error['error'] = e
+        config_error["error"] = e
         return None
 
 
-@then(parsers.parse('the environment variable "{var_name}" should be "{expected_value}"'))
+@then(
+    parsers.parse('the environment variable "{var_name}" should be "{expected_value}"')
+)
 def check_environment_variable(var_name, expected_value):
     """Check that environment variable has expected value"""
     actual_value = os.getenv(var_name)
-    assert actual_value == expected_value, f"Expected {var_name}={expected_value}, got {actual_value}"
+    assert (
+        actual_value == expected_value
+    ), f"Expected {var_name}={expected_value}, got {actual_value}"
 
 
 @then("a configuration error should occur")
 def check_configuration_error_occurred(config_error):
     """Check that a configuration error occurred"""
-    assert config_error['error'] is not None, "Expected a configuration error to occur"
+    assert config_error["error"] is not None, "Expected a configuration error to occur"
 
 
 @then("the error message should indicate YAML parsing failure")
 def check_yaml_parsing_error(config_error):
     """Check that error message indicates YAML parsing failure"""
-    error = config_error['error']
+    error = config_error["error"]
     assert error is not None, "No error occurred"
     error_msg = str(error).lower()
-    assert any(keyword in error_msg for keyword in ['yaml', 'parse', 'syntax']), \
-        f"Error message doesn't indicate YAML parsing failure: {error}"
+    assert any(
+        keyword in error_msg for keyword in ["yaml", "parse", "syntax"]
+    ), f"Error message doesn't indicate YAML parsing failure: {error}"
 
 
 @then("a configuration dictionary should be returned")
 def check_configuration_dictionary_returned(config_result):
     """Check that a configuration dictionary was returned"""
-    assert config_result['config'] is not None, "No configuration dictionary returned"
-    assert isinstance(config_result['config'], dict), "Returned config is not a dictionary"
+    assert config_result["config"] is not None, "No configuration dictionary returned"
+    assert isinstance(
+        config_result["config"], dict
+    ), "Returned config is not a dictionary"
 
 
 @then(parsers.parse('the configuration should contain "{key}" with value "{value}"'))
 def check_configuration_contains_key_value(config_result, key, value):
     """Check that configuration contains specified key-value pair"""
-    config = config_result['config']
+    config = config_result["config"]
     assert config is not None, "No configuration available"
 
     # Handle nested keys like "database.host"
-    keys = key.split('.')
+    keys = key.split(".")
     current = config
     for k in keys[:-1]:
         assert k in current, f"Key path {key} not found in configuration"
@@ -191,40 +212,46 @@ def check_configuration_contains_key_value(config_result, key, value):
     # Convert expected value to appropriate type
     if value.isdigit():
         expected_value = int(value)
-    elif value in ['true', 'false']:
-        expected_value = value == 'true'
+    elif value in ["true", "false"]:
+        expected_value = value == "true"
     else:
         expected_value = value
 
-    assert actual_value == expected_value, \
-        f"Expected {key}={expected_value}, got {actual_value}"
+    assert (
+        actual_value == expected_value
+    ), f"Expected {key}={expected_value}, got {actual_value}"
 
 
 @then('the configuration should contain "database.port" with value 5432')
 def check_configuration_contains_database_port(config_result):
     """Check that configuration contains database port with numeric value"""
-    config = config_result['config']
+    config = config_result["config"]
     assert config is not None, "No configuration available"
-    assert 'database' in config, "database not found in configuration"
-    assert 'port' in config['database'], "port not found in database configuration"
+    assert "database" in config, "database not found in configuration"
+    assert "port" in config["database"], "port not found in database configuration"
 
-    actual_value = config['database']['port']
+    actual_value = config["database"]["port"]
     assert actual_value == 5432, f"Expected database.port=5432, got {actual_value}"
 
 
 @then("no environment variables should be set")
 def no_environment_variables_set():
     """Check that no test-related environment variables are set"""
-    test_vars = [key for key in os.environ.keys()
-                 if any(prefix in key.upper() for prefix in
-                       ['DATABASE', 'API', 'CACHE', 'STRING', 'INTEGER'])]
+    test_vars = [
+        key
+        for key in os.environ.keys()
+        if any(
+            prefix in key.upper()
+            for prefix in ["DATABASE", "API", "CACHE", "STRING", "INTEGER"]
+        )
+    ]
     assert len(test_vars) == 0, f"Unexpected environment variables set: {test_vars}"
 
 
 @then("the loaded configuration should contain database settings")
 def check_loaded_config_contains_database_settings(config_result):
     """Check that loaded configuration contains database settings"""
-    config = config_result['config']
+    config = config_result["config"]
     assert config is not None, "No configuration available"
     # This will depend on the actual implementation structure
     assert len(config) > 0, "Configuration is empty"
@@ -233,36 +260,38 @@ def check_loaded_config_contains_database_settings(config_result):
 @then("the loaded configuration should not contain other service settings")
 def check_loaded_config_excludes_other_settings(config_result):
     """Check that loaded configuration excludes other service settings"""
-    config = config_result['config']
+    config = config_result["config"]
     assert config is not None, "No configuration available"
     # Check that keys don't contain OTHER_SERVICE related items
     config_str = str(config).upper()
-    assert 'OTHER' not in config_str, "Configuration contains other service settings"
+    assert "OTHER" not in config_str, "Configuration contains other service settings"
 
 
 @then("a validation error should occur")
 def check_validation_error_occurred(config_error):
     """Check that a validation error occurred"""
-    assert config_error['error'] is not None, "Expected a validation error to occur"
+    assert config_error["error"] is not None, "Expected a validation error to occur"
 
 
 @then("the error should indicate invalid port type")
 def check_invalid_port_type_error(config_error):
     """Check that error indicates invalid port type"""
-    error = config_error['error']
+    error = config_error["error"]
     assert error is not None, "No error occurred"
     error_msg = str(error).lower()
     # For now, just check that we have an error (validation not fully implemented)
-    assert 'validation' in error_msg or 'port' in error_msg or 'invalid' in error_msg, \
-        f"Error message doesn't indicate validation issue: {error}"
+    assert (
+        "validation" in error_msg or "port" in error_msg or "invalid" in error_msg
+    ), f"Error message doesn't indicate validation issue: {error}"
 
 
 @then("the error should indicate missing required field")
 def check_missing_required_field_error(config_error):
     """Check that error indicates missing required field"""
-    error = config_error['error']
+    error = config_error["error"]
     assert error is not None, "No error occurred"
     error_msg = str(error).lower()
     # For now, just check that we have an error (validation not fully implemented)
-    assert 'validation' in error_msg or 'required' in error_msg or 'field' in error_msg, \
-        f"Error message doesn't indicate validation issue: {error}"
+    assert (
+        "validation" in error_msg or "required" in error_msg or "field" in error_msg
+    ), f"Error message doesn't indicate validation issue: {error}"

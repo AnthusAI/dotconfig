@@ -13,7 +13,7 @@ from .transformer import flatten_dict, unflatten_env_vars
 def load_config(
     yaml_path: Optional[Union[str, Path]] = None,
     prefix: str = "",
-    override: bool = False
+    override: bool = False,
 ) -> Dict[str, str]:
     """
     Load configuration from YAML file and set environment variables.
@@ -30,7 +30,7 @@ def load_config(
 
     if yaml_path and Path(yaml_path).exists():
         # Load and parse YAML file
-        with open(yaml_path, 'r', encoding='utf-8') as file:
+        with open(yaml_path, "r", encoding="utf-8") as file:
             yaml_data = yaml.safe_load(file)
 
         if yaml_data:
@@ -65,7 +65,7 @@ class ConfigLoader:
         if not Path(yaml_path).exists():
             return {}
 
-        with open(yaml_path, 'r', encoding='utf-8') as file:
+        with open(yaml_path, "r", encoding="utf-8") as file:
             yaml_data = yaml.safe_load(file)
 
         return yaml_data or {}
