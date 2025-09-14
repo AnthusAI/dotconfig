@@ -7,7 +7,7 @@ import tempfile
 from pathlib import Path
 from pytest_bdd import scenarios, given, when, then, parsers
 import pytest
-from dotconfig import load_config
+from dotyaml import load_config
 
 # Load all scenarios from the feature file
 scenarios("../features/precedence.feature")

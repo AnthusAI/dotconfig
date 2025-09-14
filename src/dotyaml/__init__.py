@@ -1,5 +1,5 @@
 """
-dotconfig: Bridge YAML configuration files and environment variables
+dotyaml: Bridge YAML configuration files and environment variables
 
 A simple library that allows applications to be configured via either YAML files
 or environment variables, providing maximum deployment flexibility.

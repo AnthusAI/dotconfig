@@ -3,19 +3,18 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "dotconfig"
+name = "dotyaml"
 dynamic = ["version"]
 description = "Bridge YAML configuration files and environment variables for flexible app deployment"
 readme = "README.md"
-license = {text = "MIT"}
+license = "MIT"
 authors = [
-    {name = "dotconfig contributors"}
+    {name = "dotyaml contributors"}
 ]
 keywords = ["yaml", "environment", "config", "configuration", "dotenv", "12factor"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -40,9 +39,9 @@ dev = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/AnthusAI/dotconfig"
-"Bug Reports" = "https://github.com/AnthusAI/dotconfig/issues"
-"Source" = "https://github.com/AnthusAI/dotconfig"
+"Homepage" = "https://github.com/AnthusAI/dotyaml"
+"Bug Reports" = "https://github.com/AnthusAI/dotyaml/issues"
+"Source" = "https://github.com/AnthusAI/dotyaml"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -51,7 +50,7 @@ where = ["src"]
 "" = "src"
 
 [tool.setuptools.dynamic]
-version = {attr = "dotconfig.__version__"}
+version = {attr = "dotyaml.__version__"}
 
 [tool.black]
 line-length = 88
@@ -66,4 +65,4 @@ disallow_untyped_defs = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py", "*_test.py"]
-addopts = "--cov=dotconfig --cov-report=term-missing"
+addopts = "--cov=dotyaml --cov-report=term-missing"

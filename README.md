@@ -1,25 +1,25 @@
-# dotconfig
+# dotyaml
 
 A Python library that bridges YAML configuration files and environment variables, providing the flexibility to configure applications using either approach.
 
 ## Installation
 
 ```bash
-pip install dotconfig
+pip install dotyaml
 ```
 
 For `.env` file support, also install python-dotenv:
 
 ```bash
-pip install dotconfig python-dotenv
+pip install dotyaml python-dotenv
 ```
 
 ## Quick Start
 
-Just like python-dotenv, dotconfig is designed to be simple to use:
+Just like python-dotenv, dotyaml is designed to be simple to use:
 
 ```python
-from dotconfig import load_config
+from dotyaml import load_config
 
 # Load configuration from YAML file and set environment variables
 load_config('config.yaml')
@@ -47,7 +47,7 @@ api:
 ### 2. Load configuration in your Python application
 
 ```python
-from dotconfig import load_config
+from dotyaml import load_config
 
 # This will set environment variables based on your YAML structure
 load_config('config.yaml', prefix='APP')
@@ -122,7 +122,7 @@ load_config('config.yaml', prefix='APP', override=True)
 ### ConfigLoader for Advanced Use Cases
 
 ```python
-from dotconfig import ConfigLoader
+from dotyaml import ConfigLoader
 
 # Load configuration without setting environment variables
 loader = ConfigLoader(prefix='APP')
@@ -137,11 +137,11 @@ loader.set_env_vars(config)
 
 ### Integration with python-dotenv
 
-dotconfig works perfectly with python-dotenv for `.env` file support. Since dotconfig respects existing environment variables, you can use both together:
+dotyaml works perfectly with python-dotenv for `.env` file support. Since dotconfig respects existing environment variables, you can use both together:
 
 ```python
 from dotenv import load_dotenv
-from dotconfig import load_config
+from dotyaml import load_config
 
 # Load .env file first (if it exists)
 load_dotenv()
@@ -162,7 +162,7 @@ This pattern gives you maximum flexibility:
 
 ### Data Type Handling
 
-dotconfig automatically handles various YAML data types:
+dotyaml automatically handles various YAML data types:
 
 - **Strings**: Passed through as-is
 - **Numbers**: Converted to string representations

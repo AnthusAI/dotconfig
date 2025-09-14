@@ -33,7 +33,7 @@ jobs:
 
     - name: Run tests
       run: |
-        pytest tests/ -v --cov=src/dotconfig --cov-report=xml
+        pytest tests/ -v --cov=src/dotyaml --cov-report=xml
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3

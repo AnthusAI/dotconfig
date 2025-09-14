@@ -1,10 +1,10 @@
 # AGENTS.md - Guide for AI Coding Agents
 
-This document provides guidance for AI coding agents working on the dotconfig project.
+This document provides guidance for AI coding agents working on the dotyaml project.
 
 ## Project Overview
 
-**dotconfig** is a Python library that bridges YAML configuration files and environment variables. It allows applications to be configured via either YAML files (development) or environment variables (production/serverless), providing maximum deployment flexibility.
+**dotyaml** is a Python library that bridges YAML configuration files and environment variables. It allows applications to be configured via either YAML files (development) or environment variables (production/serverless), providing maximum deployment flexibility.
 
 ## Core Philosophy
 
@@ -47,11 +47,11 @@ Environment variables are strings, but YAML supports rich types. Handle:
 ### API Design Goals
 ```python
 # Simple usage (like dotenv)
-from dotconfig import load_config
+from dotyaml import load_config
 load_config('config.yaml', prefix='APP')
 
 # Advanced usage with schema
-from dotconfig import ConfigLoader, Schema
+from dotyaml import ConfigLoader, Schema
 loader = ConfigLoader(schema=my_schema)
 config = loader.load_from_yaml('config.yaml')
 ```
