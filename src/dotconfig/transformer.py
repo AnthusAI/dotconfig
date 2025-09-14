@@ -81,7 +81,7 @@ def unflatten_env_vars(env_vars: Dict[str, str], prefix: str = "") -> Dict[str, 
     Returns:
         Nested dictionary structure
     """
-    result = {}
+    result: Dict[str, Any] = {}
 
     for key, value in env_vars.items():
         # Filter by prefix if provided
