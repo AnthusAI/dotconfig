@@ -7,13 +7,22 @@ import yaml
 from pathlib import Path
 from typing import Optional, Dict, Any, Union
 
+try:
+    from dotenv import load_dotenv
+    DOTENV_AVAILABLE = True
+except ImportError:
+    DOTENV_AVAILABLE = False
+
 from .transformer import flatten_dict, unflatten_env_vars
+from .interpolation import interpolate_env_vars
 
 
 def load_config(
     yaml_path: Optional[Union[str, Path]] = None,
     prefix: str = "",
     override: bool = False,
+    dotenv_path: Optional[Union[str, Path]] = ".env",
+    load_dotenv_first: bool = True,
 ) -> Dict[str, str]:
     """
     Load configuration from YAML file and set environment variables.
@@ -22,11 +31,19 @@ def load_config(
         yaml_path: Path to YAML configuration file. If None, only reads existing env vars.
         prefix: Prefix for environment variable names (e.g., 'APP' -> 'APP_DATABASE_HOST')
         override: If True, override existing environment variables
+        dotenv_path: Path to .env file to load first. Set to None to disable.
+        load_dotenv_first: If True, automatically load .env file before processing YAML
 
     Returns:
         Dictionary of all configuration values that were set
     """
     config = {}
+
+    # Load .env file first if available and requested
+    if load_dotenv_first and DOTENV_AVAILABLE and dotenv_path:
+        env_file = Path(dotenv_path)
+        if env_file.exists():
+            load_dotenv(env_file)
 
     if yaml_path and Path(yaml_path).exists():
         # Load and parse YAML file
@@ -34,6 +51,9 @@ def load_config(
             yaml_data = yaml.safe_load(file)
 
         if yaml_data:
+            # Interpolate environment variables in the YAML data
+            yaml_data = interpolate_env_vars(yaml_data)
+
             # Transform nested structure to flat env var names
             flat_config = flatten_dict(yaml_data, prefix)
 
@@ -56,17 +76,35 @@ class ConfigLoader:
     Advanced configuration loader with schema support
     """
 
-    def __init__(self, prefix: str = "", schema: Optional[Dict[str, Any]] = None):
+    def __init__(
+        self,
+        prefix: str = "",
+        schema: Optional[Dict[str, Any]] = None,
+        dotenv_path: Optional[Union[str, Path]] = ".env",
+        load_dotenv_first: bool = True,
+    ):
         self.prefix = prefix
         self.schema = schema
+        self.dotenv_path = dotenv_path
+        self.load_dotenv_first = load_dotenv_first
+
+        # Load .env file first if available and requested
+        if self.load_dotenv_first and DOTENV_AVAILABLE and self.dotenv_path:
+            env_file = Path(self.dotenv_path)
+            if env_file.exists():
+                load_dotenv(env_file)
 
     def load_from_yaml(self, yaml_path: Union[str, Path]) -> Dict[str, Any]:
-        """Load configuration from YAML file"""
+        """Load configuration from YAML file with environment variable interpolation"""
         if not Path(yaml_path).exists():
             return {}
 
         with open(yaml_path, "r", encoding="utf-8") as file:
             yaml_data = yaml.safe_load(file)
+
+        if yaml_data:
+            # Interpolate environment variables in the YAML data
+            yaml_data = interpolate_env_vars(yaml_data)
 
         return yaml_data or {}
 

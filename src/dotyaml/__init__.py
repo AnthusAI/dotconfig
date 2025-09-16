@@ -9,5 +9,6 @@ __version__ = "0.1.1"
 
 # Main API - keep it simple like python-dotenv
 from .loader import load_config, ConfigLoader
+from .interpolation import interpolate_env_vars
 
-__all__ = ["load_config", "ConfigLoader"]
+__all__ = ["load_config", "ConfigLoader", "interpolate_env_vars"]
