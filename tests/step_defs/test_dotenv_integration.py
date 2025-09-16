@@ -252,6 +252,136 @@ database:
             Path(yaml_path).unlink()
             Path(env_path).unlink()
 
+    def test_env_file_same_directory_as_yaml(self):
+        """Test .env file discovery in same directory as YAML file"""
+        # Create temporary directory structure
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+
+            # Create subdirectory for config files
+            config_dir = temp_path / "config"
+            config_dir.mkdir()
+
+            # Create .env file in the config directory
+            env_file = config_dir / ".env"
+            env_file.write_text("""
+CONFIG_DB_USER=config_dir_admin
+CONFIG_DB_PASS=config_dir_secret
+CONFIG_API_KEY=config_dir_api_123
+""")
+
+            # Create YAML file in the same config directory
+            yaml_file = config_dir / "app.yaml"
+            yaml_file.write_text("""
+database:
+  username: "{{ CONFIG_DB_USER }}"
+  password: "{{ CONFIG_DB_PASS }}"
+  host: localhost
+api:
+  key: "{{ CONFIG_API_KEY }}"
+  timeout: 30
+""")
+
+            # Important: Change to parent directory (not config dir)
+            # This tests that .env is found in YAML directory, not CWD
+            original_cwd = os.getcwd()
+            try:
+                os.chdir(temp_dir)  # CWD is parent of config dir
+
+                # Load config using relative path to YAML in subdirectory
+                config = load_config('config/app.yaml', prefix='TEST')
+
+                # Verify .env from YAML directory was loaded and interpolated
+                assert config['TEST_DATABASE_USERNAME'] == 'config_dir_admin'
+                assert config['TEST_DATABASE_PASSWORD'] == 'config_dir_secret'
+                assert config['TEST_API_KEY'] == 'config_dir_api_123'
+
+                # Verify environment variables were set
+                assert os.getenv('CONFIG_DB_USER') == 'config_dir_admin'
+                assert os.getenv('CONFIG_DB_PASS') == 'config_dir_secret'
+
+            finally:
+                os.chdir(original_cwd)
+
+    def test_env_file_search_priority(self):
+        """Test .env file search priority: CWD takes precedence over YAML directory"""
+        # Create temporary directory structure
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+
+            # Create subdirectory for YAML
+            yaml_dir = temp_path / "configs"
+            yaml_dir.mkdir()
+
+            # Create .env in root directory (higher priority)
+            root_env = temp_path / ".env"
+            root_env.write_text("PRIORITY_VAR=from_root\n")
+
+            # Create .env in YAML directory (lower priority)
+            yaml_env = yaml_dir / ".env"
+            yaml_env.write_text("PRIORITY_VAR=from_yaml_dir\n")
+
+            # Create YAML file
+            yaml_file = yaml_dir / "config.yaml"
+            yaml_file.write_text("""
+test:
+  value: "{{ PRIORITY_VAR }}"
+""")
+
+            original_cwd = os.getcwd()
+            try:
+                os.chdir(temp_dir)
+
+                # Load config - should use .env from CWD, not YAML directory
+                config = load_config('configs/config.yaml', prefix='PRIORITY')
+
+                # Verify CWD .env took precedence
+                assert config['PRIORITY_TEST_VALUE'] == 'from_root'
+                assert os.getenv('PRIORITY_VAR') == 'from_root'
+
+            finally:
+                os.chdir(original_cwd)
+
+    def test_config_loader_env_file_same_directory(self):
+        """Test ConfigLoader .env discovery in same directory as YAML"""
+        # Create temporary directory structure
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp_path = Path(temp_dir)
+
+            # Create subdirectory
+            sub_dir = temp_path / "subdir"
+            sub_dir.mkdir()
+
+            # Create .env in subdirectory
+            env_file = sub_dir / ".env"
+            env_file.write_text("""
+LOADER_VAR1=loader_value1
+LOADER_VAR2=loader_value2
+""")
+
+            # Create YAML in same subdirectory
+            yaml_file = sub_dir / "config.yaml"
+            yaml_file.write_text("""
+config:
+  var1: "{{ LOADER_VAR1 }}"
+  var2: "{{ LOADER_VAR2 }}"
+""")
+
+            original_cwd = os.getcwd()
+            try:
+                os.chdir(temp_dir)  # CWD is parent directory
+
+                # Create ConfigLoader - should find .env in YAML directory
+                loader = ConfigLoader(prefix='LOADER')
+                config_data = loader.load_from_yaml('subdir/config.yaml')
+
+                # Verify .env was loaded and interpolated
+                assert config_data['config']['var1'] == 'loader_value1'
+                assert config_data['config']['var2'] == 'loader_value2'
+
+            finally:
+                os.chdir(original_cwd)
+
     def test_realistic_secrets_management_scenario(self):
         """Test realistic scenario: secrets in .env, config in YAML"""
         # Create .env file with secrets (this would be .gitignored)
@@ -341,7 +471,8 @@ services:
             "SHOULD_NOT_LOAD", "EXISTING_VAR", "NEW_VAR",
             "LOADER_DB_USER", "LOADER_DB_PASS", "DB_HOST", "DB_NAME",
             "API_SECRET_KEY", "JWT_SECRET", "STRIPE_SECRET_KEY", "SENDGRID_API_KEY",
-            "STRIPE_WEBHOOK_SECRET"
+            "STRIPE_WEBHOOK_SECRET", "CONFIG_DB_USER", "CONFIG_DB_PASS", "CONFIG_API_KEY",
+            "PRIORITY_VAR", "LOADER_VAR1", "LOADER_VAR2"
         ]
 
         # Also clean up any MYAPP_ and APP_ prefixed vars

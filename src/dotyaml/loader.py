@@ -42,8 +42,27 @@ def load_config(
     # Load .env file first if available and requested
     if load_dotenv_first and DOTENV_AVAILABLE and dotenv_path:
         env_file = Path(dotenv_path)
-        if env_file.exists():
-            load_dotenv(env_file)
+
+        # Try multiple locations for .env file
+        env_locations = []
+
+        # 1. Exact path specified
+        if env_file.is_absolute():
+            env_locations.append(env_file)
+        else:
+            # 2. Current working directory
+            env_locations.append(Path.cwd() / dotenv_path)
+
+            # 3. Same directory as YAML file (if yaml_path provided)
+            if yaml_path:
+                yaml_dir = Path(yaml_path).parent
+                env_locations.append(yaml_dir / dotenv_path)
+
+        # Load from the first .env file found
+        for env_path in env_locations:
+            if env_path.exists():
+                load_dotenv(env_path)
+                break
 
     if yaml_path and Path(yaml_path).exists():
         # Load and parse YAML file
@@ -91,13 +110,51 @@ class ConfigLoader:
         # Load .env file first if available and requested
         if self.load_dotenv_first and DOTENV_AVAILABLE and self.dotenv_path:
             env_file = Path(self.dotenv_path)
-            if env_file.exists():
-                load_dotenv(env_file)
+
+            # Try multiple locations for .env file
+            env_locations = []
+
+            # 1. Exact path specified
+            if env_file.is_absolute():
+                env_locations.append(env_file)
+            else:
+                # 2. Current working directory
+                env_locations.append(Path.cwd() / self.dotenv_path)
+
+            # Load from the first .env file found
+            for env_path in env_locations:
+                if env_path.exists():
+                    load_dotenv(env_path)
+                    break
 
     def load_from_yaml(self, yaml_path: Union[str, Path]) -> Dict[str, Any]:
         """Load configuration from YAML file with environment variable interpolation"""
         if not Path(yaml_path).exists():
             return {}
+
+        # Load .env file if needed and not already loaded in __init__
+        if self.load_dotenv_first and DOTENV_AVAILABLE and self.dotenv_path:
+            env_file = Path(self.dotenv_path)
+
+            # Try multiple locations for .env file
+            env_locations = []
+
+            # 1. Exact path specified
+            if env_file.is_absolute():
+                env_locations.append(env_file)
+            else:
+                # 2. Current working directory
+                env_locations.append(Path.cwd() / self.dotenv_path)
+
+                # 3. Same directory as YAML file
+                yaml_dir = Path(yaml_path).parent
+                env_locations.append(yaml_dir / self.dotenv_path)
+
+            # Load from the first .env file found
+            for env_path in env_locations:
+                if env_path.exists():
+                    load_dotenv(env_path)
+                    break
 
         with open(yaml_path, "r", encoding="utf-8") as file:
             yaml_data = yaml.safe_load(file)
